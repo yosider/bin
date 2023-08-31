@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Input directory
+USERNAME=$(cmd.exe /C "whoami" 2>/dev/null | sed 's/.*\\//' | tr -d '\r')
+INPUT_DIR="/mnt/c/Users/$USERNAME/Downloads/"
+
+# Check argument count
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $(basename $0) <PDF filename (without .pdf)>"
+    exit 1
+fi
+
+output_dir="$1"
+input="$1"
+
+cd "$INPUT_DIR" || { echo "Invalid directory"; exit 1; }
+
+# Exit if directory exists
+if [ -d "$output_dir" ]; then
+    echo "Directory already exists: $output_dir"
+    exit 1
+fi
+
+# Create directory
+mkdir -p "$output_dir" || { echo "Create dir failed: $output_dir"; exit 1; }
+
+# Convert PDF to PNG
+pdftoppm -png -r 300 "${input}.pdf" "${output_dir}/page" || { echo "Conversion failed"; exit 1; }
+
+exit 0
